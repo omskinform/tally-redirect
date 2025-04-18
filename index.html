@@ -1,11 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="2;url=https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&submission_id={{submissionId}}">
-    <title>Redirecting...</title>
+  <meta charset="UTF-8" />
+  <title>Подождите, идёт переадресация...</title>
+  <script>
+    async function checkRedirect() {
+      const params = new URLSearchParams(window.location.search);
+      const submissionId = params.get("submission_id");
+
+      if (!submissionId || submissionId === "wait") {
+        document.getElementById("status").textContent = "Идёт подготовка ссылки...";
+        return;
+      }
+
+      const jsonUrl = https://your-storage.com/redirects/${submissionId}.json; // Заменить!
+      
+      try {
+        const response = await fetch(jsonUrl, { cache: "no-store" });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            document.getElementById("status").textContent = "Ожидаем ссылку...";
+          }
+        } else {
+          document.getElementById("status").textContent = "Подготовка... Ждём Make.";
+        }
+      } catch (err) {
+        document.getElementById("status").textContent = "Ошибка соединения, повторная попытка...";
+      }
+    }
+
+    setInterval(checkRedirect, 2000);
+    window.onload = checkRedirect;
+  </script>
 </head>
 <body>
-    <p>Вы будете перенаправлены на анкету...</p>
+  <h2 id="status">Подождите, идёт переадресация...</h2>
 </body>
 </html>
