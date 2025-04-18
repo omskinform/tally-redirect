@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tally Redirect</title>
+    <title>Redirecting...</title>
 </head>
 <body>
-    <h1>Redirecting...</h1>
-    <script>
+    <script type="text/javascript">
         // Получаем параметры из URL
-        const params = new URLSearchParams(window.location.search);
-        const name = params.get('name');
-        const email = params.get('email');
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('entry.27396987'); // Имя
+        const email = urlParams.get('entry.728400166'); // Email
 
-        // Формируем URL для редиректа с предзаполненными данными
+        // Формируем новый URL с предзаполненными данными
         const redirectUrl = https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=${encodeURIComponent(name)}&entry.728400166=${encodeURIComponent(email)};
 
-        // Перенаправляем на нужную ссылку
-        window.location.href = redirectUrl;
+        // Редирект через 1 секунду
+        setTimeout(function() {
+            window.location.href = redirectUrl;
+        }, 1000);
     </script>
+    <p>Redirecting... If you are not redirected, <a href="" id="manual-link">click here</a>.</p>
 </body>
 </html>
