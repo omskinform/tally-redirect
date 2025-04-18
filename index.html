@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    window.onload = function() {
+      // Параметры для подстановки
+      var name = new URLSearchParams(window.location.search).get("entry.27396987");
+      var email = new URLSearchParams(window.location.search).get("entry.728400166");
+
+      // Формирование URL с предзаполненными данными
+      var redirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=" + encodeURIComponent(name) + "&entry.728400166=" + encodeURIComponent(email);
+      
+      // Перенаправление
+      window.location.href = redirectUrl;
+    };
+  </script>
 </head>
 <body>
-    <script type="text/javascript">
-        // Получаем параметры из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const name = urlParams.get('entry.27396987'); // Имя
-        const email = urlParams.get('entry.728400166'); // Email
+  <h1>Redirecting...</h1>
+  <p>If you are not redirected, <a href="#" id="redirectLink">click here</a>.</p>
 
-        // Формируем новый URL с предзаполненными данными
-        const redirectUrl = https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=${encodeURIComponent(name)}&entry.728400166=${encodeURIComponent(email)};
-
-        // Редирект через 1 секунду
-        setTimeout(function() {
-            window.location.href = redirectUrl;
-        }, 1000);
-    </script>
-    <p>Redirecting... If you are not redirected, <a href="" id="manual-link">click here</a>.</p>
+  <script>
+    document.getElementById('redirectLink').onclick = function() {
+      window.location.href = redirectUrl;
+    };
+  </script>
 </body>
 </html>
