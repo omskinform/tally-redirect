@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Перенаправление...</title>
+  <script>
+    // Извлекаем параметры из URL (например, ?name=Иван&email=test@mail.com)
+    const params = new URLSearchParams(window.location.search);
+    const name = encodeURIComponent(params.get("name") || "");
+    const email = encodeURIComponent(params.get("email") || "");
+
+    // Ссылка на Google Form с подстановкой значений
+    const redirectUrl = https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=${name}&entry.728400166=${email};
+
+    // Перенаправление через 1 секунду
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 1000);
+  </script>
+</head>
+<body>
+  <p>Переход к анкете...</p>
+</body>
+</html>
