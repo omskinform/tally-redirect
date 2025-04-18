@@ -1,49 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirecting...</title>
-  <script>
-    window.onload = function() {
-      // Получаем параметры из URL, переданные через Tally (например, question_Qe0a47)
-      var name = new URLSearchParams(window.location.search).get("question_Qe0a47");
-      var email = new URLSearchParams(window.location.search).get("question_K50NMK");
-
-      // Логирование значений для отладки
-      console.log("Name: " + name);
-      console.log("Email: " + email);
-
-      // Проверка, что данные получены корректно
-      if (name && email) {
-        // Формируем URL для Google Forms с правильным форматированием
-        var redirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=" + encodeURIComponent(name) + "&entry.728400166=" + encodeURIComponent(email);
-        
-        // Логирование сформированного URL для отладки
-        console.log("Redirect URL: " + redirectUrl);
-        
-        // Перенаправление на Google Forms
-        window.location.href = redirectUrl;
-      } else {
-        // Если данные не были получены, показать ошибку
-        console.error("Error: Missing name or email parameters.");
-      }
-    };
-  </script>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="2;url=https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&submission_id={{submissionId}}">
+    <title>Redirecting...</title>
 </head>
 <body>
-  <h1>Redirecting...</h1>
-  <p>If you are not redirected, <a href="#" id="redirectLink">click here</a>.</p>
-
-  <script>
-    // Если пользователь не перенаправлен автоматически, клик по ссылке
-    document.getElementById('redirectLink').onclick = function() {
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      } else {
-        console.error("Redirect URL is not defined.");
-      }
-    };
-  </script>
+    <p>Вы будете перенаправлены на анкету...</p>
 </body>
 </html>
