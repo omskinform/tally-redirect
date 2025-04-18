@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redirecting...</title>
   <script>
-    // Переменная будет доступна глобально
-    var redirectUrl;
-
     window.onload = function() {
-      // Параметры для подстановки
-      var name = new URLSearchParams(window.location.search).get("entry.27396987");
-      var email = new URLSearchParams(window.location.search).get("entry.728400166");
+      // Получаем параметры из URL, переданные через Tally (например, question_Qe0a47)
+      var name = new URLSearchParams(window.location.search).get("question_Qe0a47");
+      var email = new URLSearchParams(window.location.search).get("question_K50NMK");
 
       // Логирование значений для отладки
       console.log("Name: " + name);
@@ -19,13 +16,13 @@
 
       // Проверка, что данные получены корректно
       if (name && email) {
-        // Формирование URL с предзаполненными данными
-        redirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=" + encodeURIComponent(name) + "&entry.728400166=" + encodeURIComponent(email);
+        // Формируем URL для Google Forms с правильным форматированием
+        var redirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf2OejA2QxX64NMIW4C1f-lo5xEvJTfeNkp6St_u5l5OfzPQA/viewform?usp=pp_url&entry.27396987=" + encodeURIComponent(name) + "&entry.728400166=" + encodeURIComponent(email);
         
-        // Логирование сформированного URL
+        // Логирование сформированного URL для отладки
         console.log("Redirect URL: " + redirectUrl);
         
-        // Перенаправление
+        // Перенаправление на Google Forms
         window.location.href = redirectUrl;
       } else {
         // Если данные не были получены, показать ошибку
