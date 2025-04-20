@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Переадресация...</title>
-  <script>
-    async function redirect() {
-      try {
-        const response = await fetch("latest.json", { cache: "no-store" });
-        if (!response.ok) throw new Error("Нет latest.json");
-        const data = await response.json();
-
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url;
-        } else {
-          document.getElementById("status").textContent = "Ссылка не найдена.";
-        }
-      } catch (err) {
-        document.getElementById("status").textContent = "Ошибка редиректа.";
-      }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 30vh;
     }
-
-    window.onload = redirect;
-  </script>
+    .loading {
+      font-size: 1.2em;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-  <h2 id="status">Подождите, идёт переадресация…</h2>
+  <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
+
+  <script>
+    fetch('latest.json?t=' + Date.now())
+      .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки latest.json');
+        return response.text();
+      })
+      .then(data => {
+        const url = atob(data.trim());
+        window.location.href = url;
+      })
+      .catch(err => {
+        document.getElementById('status').textContent = 'Не удалось переадресовать. Пожалуйста, попробуйте позже.';
+        console.error('Redirect error:', err);
+      });
+  </script>
 </body>
 </html>
