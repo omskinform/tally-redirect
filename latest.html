@@ -20,13 +20,13 @@
   <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
 
   <script>
-    fetch('latest.json?t=' + Date.now())
+    fetch('latest.json?t=' + Date.now(), { cache: "no-store" })
       .then(response => {
         if (!response.ok) throw new Error('Ошибка загрузки latest.json');
         return response.text();
       })
       .then(data => {
-        const url = atob(data.trim());
+        const url = data.trim(); // УБИРАЕМ atob()
         window.location.href = url;
       })
       .catch(err => {
