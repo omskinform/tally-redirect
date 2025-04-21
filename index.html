@@ -1,42 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Подождите, идёт переадресация...</title>
-  <script>
-    async function checkRedirect() {
-      const params = new URLSearchParams(window.location.search);
-      const submissionId = params.get("submission_id");
-
-      if (!submissionId || submissionId === "wait") {
-        document.getElementById("status").textContent = "Идёт подготовка ссылки...";
-        return;
-      }
-
-      const jsonUrl = https://your-storage.com/redirects/${submissionId}.json; // Заменить!
-      
-      try {
-        const response = await fetch(jsonUrl, { cache: "no-store" });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.redirect_url) {
-            window.location.href = data.redirect_url;
-          } else {
-            document.getElementById("status").textContent = "Ожидаем ссылку...";
-          }
-        } else {
-          document.getElementById("status").textContent = "Подготовка... Ждём Make.";
-        }
-      } catch (err) {
-        document.getElementById("status").textContent = "Ошибка соединения, повторная попытка...";
-      }
-    }
-
-    setInterval(checkRedirect, 2000);
-    window.onload = checkRedirect;
-  </script>
+  <meta charset="UTF-8">
+  <title>Переадресация...</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding-top: 20vh; }
+    #status { font-size: 1.2em; color: #555; }
+  </style>
 </head>
 <body>
-  <h2 id="status">Подождите, идёт переадресация...</h2>
+  <div id="status">Пожалуйста, подождите, идёт переадресация…</div>
+  <script>
+    (async function() {
+      try {
+        // Форсим параметр, чтобы не было кэша
+        const resp = await fetch('latest.json?t=' + Date.now(), { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('Не удалось загрузить latest.json: ' + resp.status);
+        
+        // Читаем тело как текст (это Base64-строка)
+        const b64 = (await resp.text()).trim();
+        
+        // Декодируем в нормальный URL
+        const url = atob(b64);
+        
+        // Проверяем, что это ссылка
+        if (!url.startsWith('http')) throw new Error('Некорректный URL: ' + url);
+        
+        // Перенаправляем
+        window.location.replace(url);
+      } catch (err) {
+        document.getElementById('status').textContent =
+          'Не удалось переадресовать. Попробуйте обновить страницу.';
+        console.error(err);
+      }
+    })();
+  </script>
 </body>
 </html>
