@@ -20,19 +20,44 @@
   <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
 
   <script>
-    fetch('latest.json?t=' + Date.now(), { cache: "no-store" })
-      .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки latest.json');
-        return response.text();
-      })
-      .then(data => {
-        const url = data.trim(); // УБИРАЕМ atob()
-        window.location.href = url;
-      })
-      .catch(err => {
-        document.getElementById('status').textContent = 'Не удалось переадресовать. Пожалуйста, попробуйте позже.';
-        console.error('Redirect error:', err);
-      });
+    const maxAttempts = 10;
+    let attempts = 0;
+
+    async function fetchRedirectUrl() {
+      try {
+        const response = await fetch('latest.json?t=' + Date.now(), {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        });
+
+        if (!response.ok) throw new Error('Ошибка загрузки');
+
+        const data = await response.text(); // Или .json() если используешь JSON
+        const url = data.trim(); // если у тебя просто строка-URL в файле
+
+        // Простейшая проверка
+        if (url.includes('submission_id=')) {
+          window.location.href = url;
+        } else {
+          throw new Error('URL ещё не обновился');
+        }
+
+      } catch (error) {
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(fetchRedirectUrl, 1000); // Повтор через 1 секунду
+        } else {
+          document.getElementById('status').textContent = 'Не удалось переадресовать. Попробуйте позже.';
+          console.error('Redirect error:', error);
+        }
+      }
+    }
+
+    fetchRedirectUrl();
   </script>
 </body>
 </html>
