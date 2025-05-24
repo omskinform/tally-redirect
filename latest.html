@@ -26,7 +26,6 @@
     async function fetchRedirectUrl() {
       try {
         const response = await fetch('latest.json?t=' + Date.now(), {
-          method: 'GET',
           cache: 'no-store',
           headers: {
             'Pragma': 'no-cache',
@@ -34,25 +33,26 @@
           }
         });
 
-        if (!response.ok) throw new Error('Ошибка загрузки');
-
-        const data = await response.text(); // Или .json() если используешь JSON
-        const url = data.trim(); // если у тебя просто строка-URL в файле
-
-        // Простейшая проверка
-        if (url.includes('submission_id=')) {
-          window.location.href = url;
-        } else {
-          throw new Error('URL ещё не обновился');
+        if (!response.ok) {
+          throw new Error(Ошибка загрузки: ${response.status});
         }
 
-      } catch (error) {
+        const text = await response.text();
+        const url = text.trim();
+
+        if (url.startsWith('http')) {
+          window.location.href = url;
+        } else {
+          throw new Error('Невалидный URL в JSON');
+        }
+
+      } catch (err) {
         attempts++;
         if (attempts < maxAttempts) {
-          setTimeout(fetchRedirectUrl, 1000); // Повтор через 1 секунду
+          setTimeout(fetchRedirectUrl, 1000);
         } else {
           document.getElementById('status').textContent = 'Не удалось переадресовать. Попробуйте позже.';
-          console.error('Redirect error:', error);
+          console.error('Redirect error:', err.message);
         }
       }
     }
