@@ -1,13 +1,37 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Redirecting...</title><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body><script>
-fetch('latest.html?t=' + Date.now(), { cache: 'no-store' })
-  .then(r => r.text())
-  .then(t => {
-    const m = t.match(/window\.location\.href="([^"]+)"/);
-    if (m && m[1]) window.location.href = m[1];
-    else document.body.textContent = 'Ошибка: не найдена ссылка.';
-  })
-  .catch(e => {
-    console.error('Redirect error:', e);
-    document.body.textContent = 'Ошибка загрузки, попробуйте позже.';
-  });
-</script></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Переадресация...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 30vh;
+    }
+    .loading {
+      font-size: 1.2em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
+
+  <script>
+    fetch('latest.json?t=' + Date.now(), { cache: "no-store" })
+      .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки latest.json');
+        return response.text();
+      })
+      .then(url => {
+        window.location.href = url.trim();
+      })
+      .catch(err => {
+        document.getElementById('status').textContent = 'Не удалось переадресовать. Пожалуйста, попробуйте позже.';
+        console.error('Redirect error:', err);
+      });
+  </script>
+</body>
+</html>
