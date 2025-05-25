@@ -20,44 +20,22 @@
   <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
 
   <script>
-    const maxAttempts = 10;
-    let attempts = 0;
-
-    async function fetchRedirectUrl() {
-      try {
-        const response = await fetch('latest.json?t=' + Date.now(), {
-          cache: 'no-store',
-          headers: {
-            'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(Ошибка загрузки: ${response.status});
-        }
-
-        const text = await response.text();
-        const url = text.trim();
-
-        if (url.startsWith('http')) {
-          window.location.href = url;
-        } else {
-          throw new Error('Невалидный URL в JSON');
-        }
-
-      } catch (err) {
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(fetchRedirectUrl, 1000);
-        } else {
-          document.getElementById('status').textContent = 'Не удалось переадресовать. Попробуйте позже.';
-          console.error('Redirect error:', err.message);
-        }
-      }
-    }
-
-    fetchRedirectUrl();
+    fetch('https://raw.githubusercontent.com/omskinform/tally-redirect/main/latest.json?t=' + Date.now(), {
+      cache: 'no-store'
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Ошибка загрузки latest.json');
+      return response.text();
+    })
+    .then(data => {
+      const url = data.trim();
+      if (!url.startsWith('http')) throw new Error('Некорректная ссылка');
+      window.location.href = url;
+    })
+    .catch(err => {
+      document.getElementById('status').textContent = 'Не удалось переадресовать. Пожалуйста, попробуйте позже.';
+      console.error('Redirect error:', err);
+    });
   </script>
 </body>
 </html>
