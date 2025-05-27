@@ -32,7 +32,7 @@
 
         // Ждём немного перед второй попыткой
         document.getElementById('status').textContent = 'Проверяем обновления...';
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 3000));
 
         const secondUrl = await fetchLatestUrl();
 
@@ -42,7 +42,7 @@
         } else {
           // Ссылка не изменилась — пробуем ещё раз через 2с
           document.getElementById('status').textContent = 'Подождите немного...';
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 5000));
           const thirdUrl = await fetchLatestUrl();
 
           // Даже если третья такая же — всё равно редиректим
