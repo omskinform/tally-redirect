@@ -20,18 +20,41 @@
   <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
 
   <script>
-    fetch('latest.json?t=' + Date.now(), { cache: "no-store" })
-      .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки latest.json');
-        return response.text();
-      })
-      .then(url => {
-        window.location.href = url.trim();
-      })
-      .catch(err => {
-        document.getElementById('status').textContent = 'Не удалось переадресовать. Пожалуйста, попробуйте позже.';
+    async function fetchLatestUrl() {
+      const response = await fetch('latest.json?t=' + Date.now(), { cache: "no-store" });
+      if (!response.ok) throw new Error('Ошибка загрузки latest.json');
+      return (await response.text()).trim();
+    }
+
+    async function tryRedirect() {
+      try {
+        const firstUrl = await fetchLatestUrl();
+
+        // Ждём немного перед второй попыткой
+        document.getElementById('status').textContent = 'Проверяем обновления...';
+        await new Promise(r => setTimeout(r, 2000));
+
+        const secondUrl = await fetchLatestUrl();
+
+        if (firstUrl !== secondUrl) {
+          // Ссылка обновилась — можно редиректить
+          window.location.href = secondUrl;
+        } else {
+          // Ссылка не изменилась — пробуем ещё раз через 2с
+          document.getElementById('status').textContent = 'Подождите немного...';
+          await new Promise(r => setTimeout(r, 2000));
+          const thirdUrl = await fetchLatestUrl();
+
+          // Даже если третья такая же — всё равно редиректим
+          window.location.href = thirdUrl;
+        }
+      } catch (err) {
+        document.getElementById('status').textContent = 'Ошибка при переадресации. Попробуйте позже.';
         console.error('Redirect error:', err);
-      });
+      }
+    }
+
+    tryRedirect();
   </script>
 </body>
 </html>
