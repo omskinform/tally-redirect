@@ -2,59 +2,67 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Переадресация...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 30vh;
-    }
-    .loading {
-      font-size: 1.2em;
-      color: #555;
-    }
-  </style>
+  <title>Ожидание результата...</title>
 </head>
 <body>
-  <div class="loading" id="status">Переадресуем, пожалуйста, подождите...</div>
+  <div id="status">Ищем ваш результат...</div>
 
   <script>
-    async function fetchLatestUrl() {
-      const response = await fetch('latest.json?t=' + Date.now(), { cache: "no-store" });
-      if (!response.ok) throw new Error('Ошибка загрузки latest.json');
-      return (await response.text()).trim();
+    const statusEl = document.getElementById("status");
+
+    // Получаем имя файла из URL, например ?file=result-abc123.html
+    const params = new URLSearchParams(window.location.search);
+    const targetFile = params.get("file");
+
+    if (!targetFile) {
+      statusEl.textContent = "Ошибка: не указан файл для проверки.";
+      throw new Error("Missing ?file= параметр");
     }
 
-    async function tryRedirect() {
+    async function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function checkFileExists(url) {
       try {
-        const firstUrl = await fetchLatestUrl();
-
-        // Ждём немного перед второй попыткой
-        document.getElementById('status').textContent = 'Проверяем обновления...';
-        await new Promise(r => setTimeout(r, 3000));
-
-        const secondUrl = await fetchLatestUrl();
-
-        if (firstUrl !== secondUrl) {
-          // Ссылка обновилась — можно редиректить
-          window.location.href = secondUrl;
-        } else {
-          // Ссылка не изменилась — пробуем ещё раз через 2с
-          document.getElementById('status').textContent = 'Подождите немного...';
-          await new Promise(r => setTimeout(r, 5000));
-          const thirdUrl = await fetchLatestUrl();
-
-          // Даже если третья такая же — всё равно редиректим
-          window.location.href = thirdUrl;
-        }
-      } catch (err) {
-        document.getElementById('status').textContent = 'Ошибка при переадресации. Попробуйте позже.';
-        console.error('Redirect error:', err);
+        const res = await fetch(url, { cache: "no-store" });
+        return res.ok;
+      } catch {
+        return false;
       }
     }
 
-    tryRedirect();
+    async function checkWithCountdown() {
+      // Первая проверка
+      if (await checkFileExists(targetFile)) {
+        location.href = targetFile;
+        return;
+      }
+
+      statusEl.textContent = "Файл пока не найден. Пробуем снова через 2 секунды...";
+      await delay(2000);
+
+      // Вторая проверка
+      if (await checkFileExists(targetFile)) {
+        location.href = targetFile;
+        return;
+      }
+
+      // Обратный отсчёт
+      for (let i = 10; i > 0; i--) {
+        statusEl.textContent = `Ожидаем файл... Повтор через ${i} сек.`;
+        await delay(1000);
+      }
+
+      // Третья проверка
+      if (await checkFileExists(targetFile)) {
+        location.href = targetFile;
+      } else {
+        statusEl.textContent = "Файл не найден. Попробуйте позже.";
+      }
+    }
+
+    checkWithCountdown();
   </script>
 </body>
 </html>
