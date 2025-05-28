@@ -12,7 +12,6 @@
       justify-content: center;
       height: 100vh;
       text-align: center;
-      padding: 1em;
     }
     #countdown {
       font-size: 2em;
@@ -27,7 +26,7 @@
 </head>
 <body>
   <div>
-    <div id="status">⏳ Загружаем данные...</div>
+    <div id="status">⏳ Загружаем данные</div>
     <div id="countdown"></div>
     <button id="retry" style="display:none;" onclick="location.reload()">🔁 Попробовать ещё раз</button>
   </div>
@@ -47,8 +46,6 @@
     function startCountdown(seconds, label = "⏳ Переадресация начнётся через") {
       return new Promise(resolve => {
         const countdown = document.getElementById("countdown");
-        const status = document.getElementById("status");
-        status.textContent = ""; // очищаем статус, чтобы надпись была только в отсчёте
         countdown.textContent = `${label}: ${seconds}`;
         const interval = setInterval(() => {
           seconds--;
@@ -68,16 +65,27 @@
       const retry = document.getElementById("retry");
 
       try {
+        // 1-я попытка (двойная загрузка с паузой)
+        status.textContent = "⏳ Загружаем данные";
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 5000)); // первая задержка без отсчета
+        await new Promise(r => setTimeout(r, 500));
+        const href1b = await fetchLink();
 
+        if (href1b !== href1) {
+          location.href = href1b;
+          return;
+        }
+
+        // 2-я попытка
+        await new Promise(r => setTimeout(r, 5000));
         const href2 = await fetchLink();
         if (href2 !== href1) {
           location.href = href2;
           return;
         }
 
-        await startCountdown(25); // обратный отсчёт на 20 сек
+        // Обратный отсчёт перед 3-й попыткой
+        await startCountdown(25);
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -85,15 +93,7 @@
           return;
         }
 
-        status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 7000));
-
-        const href4 = await fetchLink();
-        if (href4 !== href1) {
-          location.href = href4;
-          return;
-        }
-
+        // Финал — не удалось
         status.textContent = "❌ Анкета не загружена. Попробуйте ещё раз.";
         retry.style.display = "inline-block";
 
@@ -103,7 +103,10 @@
       }
     }
 
-    attemptRedirect();
+    // Даём странице прогрузиться и CDN — обновиться
+    setTimeout(() => {
+      attemptRedirect();
+    }, 2000);
   </script>
 </body>
 </html>
