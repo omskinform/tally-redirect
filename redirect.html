@@ -66,19 +66,17 @@
       const retry = document.getElementById("retry");
 
       try {
-        // Первая проверка
+        // Первая попытка (без отсчета)
         const href1 = await fetchLink();
-        status.textContent = "⏳ Переадресация начнётся через...";
-        await startCountdown(3);
+        await new Promise(r => setTimeout(r, 3000));
 
-        // Вторая проверка
+        // Вторая попытка (обратный отсчёт 20 сек)
         const href2 = await fetchLink();
         if (href2 !== href1) {
           location.href = href2;
           return;
         }
 
-        // Третья проверка после обратного отсчета
         status.textContent = "⏳ Переадресация начнётся через...";
         await startCountdown(20);
 
@@ -88,7 +86,7 @@
           return;
         }
 
-        // Четвёртая попытка через паузу
+        // Третья попытка (перед финальной паузой)
         status.textContent = "⏳ Открываем анкету...";
         await new Promise(r => setTimeout(r, 3000));
 
