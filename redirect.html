@@ -43,7 +43,7 @@
       return json.href;
     }
 
-    function startCountdown(seconds, label = "⏳ Ждём обновления") {
+    function startCountdown(seconds, label = "⏳ Загружаем данные") {
       return new Promise(resolve => {
         const countdown = document.getElementById("countdown");
         countdown.textContent = `${label}: ${seconds}`;
@@ -66,8 +66,8 @@
 
       try {
         const href1 = await fetchLink();
-        status.textContent = "⏳ Проверяем ссылку (1-я попытка)...";
-        await new Promise(r => setTimeout(r, 2000));
+        status.textContent = "⏳ Загружаем данные";
+        await new Promise(r => setTimeout(r, 3000));
 
         const href2 = await fetchLink();
         if (href2 !== href1) {
@@ -75,8 +75,8 @@
           return;
         }
 
-        status.textContent = "⏳ Проверяем ещё раз через 10 секунд...";
-        await startCountdown(10);
+        status.textContent = "⏳ Переадресация сработает через ...";
+        await startCountdown(15);
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -84,8 +84,8 @@
           return;
         }
 
-        status.textContent = "⏳ Последняя попытка...";
-        await new Promise(r => setTimeout(r, 3000));
+        status.textContent = "⏳ Открываем анкету...";
+        await new Promise(r => setTimeout(r, 5000));
 
         const href4 = await fetchLink();
         if (href4 !== href1) {
