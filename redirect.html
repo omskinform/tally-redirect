@@ -77,7 +77,7 @@
           return;
         }
 
-        await startCountdown(20); // обратный отсчёт на 20 сек
+        await startCountdown(25); // обратный отсчёт на 20 сек
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -86,7 +86,7 @@
         }
 
         status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 5000));
+        await new Promise(r => setTimeout(r, 7000));
 
         const href4 = await fetchLink();
         if (href4 !== href1) {
