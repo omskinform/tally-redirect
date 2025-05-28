@@ -5,64 +5,71 @@
   <title>Ожидание результата...</title>
 </head>
 <body>
-  <div id="status">Ищем ваш результат...</div>
+  <div id="status">Проверка результата...</div>
 
   <script>
     const statusEl = document.getElementById("status");
 
-    // Получаем имя файла из URL, например ?file=result-abc123.html
+    // Получаем "старую" ссылку из URL, например: redirect.html?current=result-old.html
     const params = new URLSearchParams(window.location.search);
-    const targetFile = params.get("file");
+    const current = params.get("current");
 
-    if (!targetFile) {
-      statusEl.textContent = "Ошибка: не указан файл для проверки.";
-      throw new Error("Missing ?file= параметр");
+    if (!current) {
+      statusEl.textContent = "Ошибка: переадресация не может быть завершена. Ожидайте письмо со ссылкой на анкету по электронной почте (?current=...)";
+      throw new Error("Missing ?current= параметр");
     }
 
     async function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function checkFileExists(url) {
+    async function getLatestHref() {
       try {
-        const res = await fetch(url, { cache: "no-store" });
-        return res.ok;
-      } catch {
-        return false;
+        const response = await fetch("latest.json", { cache: "no-store" });
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        return data?.href || null;
+      } catch (e) {
+        return null;
       }
     }
 
-    async function checkWithCountdown() {
-      // Первая проверка
-      if (await checkFileExists(targetFile)) {
-        location.href = targetFile;
+    async function checkLoop() {
+      // 🔹 Первая проверка
+      let latest = await getLatestHref();
+      if (latest && latest !== current) {
+        location.href = latest;
         return;
       }
 
-      statusEl.textContent = "Файл пока не найден. Пробуем снова через 2 секунды...";
-      await delay(2000);
-
-      // Вторая проверка
-      if (await checkFileExists(targetFile)) {
-        location.href = targetFile;
-        return;
-      }
-
-      // Обратный отсчёт
+      // 🔹 Обратный отсчёт 10 сек
       for (let i = 10; i > 0; i--) {
-        statusEl.textContent = `Ожидаем файл... Повтор через ${i} сек.`;
+        statusEl.textContent = `Загрузка данных... Переадресация через ${i} сек.`;
         await delay(1000);
       }
 
-      // Третья проверка
-      if (await checkFileExists(targetFile)) {
-        location.href = targetFile;
+      // 🔹 Вторая проверка
+      latest = await getLatestHref();
+      if (latest && latest !== current) {
+        location.href = latest;
+        return;
+      }
+
+      // 🔹 Пауза 2 секунды
+      statusEl.textContent = "Данные не загружены. Пробуем ещё раз...";
+      await delay(2000);
+
+      // 🔹 Третья проверка
+      latest = await getLatestHref();
+      if (latest && latest !== current) {
+        location.href = latest;
       } else {
-        statusEl.textContent = "Файл не найден. Попробуйте позже.";
+        statusEl.textContent = "Не удалось загрузить данные. Ожидайте ссылку на анкету по электронной почте.";
       }
     }
 
-    checkWithCountdown();
+    checkLoop();
   </script>
 </body>
 </html>
