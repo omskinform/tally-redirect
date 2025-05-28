@@ -47,6 +47,8 @@
     function startCountdown(seconds, label = "⏳ Переадресация начнётся через") {
       return new Promise(resolve => {
         const countdown = document.getElementById("countdown");
+        const status = document.getElementById("status");
+        status.textContent = ""; // очищаем статус, чтобы надпись была только в отсчёте
         countdown.textContent = `${label}: ${seconds}`;
         const interval = setInterval(() => {
           seconds--;
@@ -66,19 +68,16 @@
       const retry = document.getElementById("retry");
 
       try {
-        // Первая попытка (без отсчета)
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, 3000)); // первая задержка без отсчета
 
-        // Вторая попытка (обратный отсчёт 20 сек)
         const href2 = await fetchLink();
         if (href2 !== href1) {
           location.href = href2;
           return;
         }
 
-        status.textContent = "⏳ Переадресация начнётся через...";
-        await startCountdown(20);
+        await startCountdown(20); // обратный отсчёт на 20 сек
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -86,7 +85,6 @@
           return;
         }
 
-        // Третья попытка (перед финальной паузой)
         status.textContent = "⏳ Открываем анкету...";
         await new Promise(r => setTimeout(r, 3000));
 
@@ -96,7 +94,6 @@
           return;
         }
 
-        // Все попытки не дали результата
         status.textContent = "❌ Анкета не загружена. Попробуйте ещё раз.";
         retry.style.display = "inline-block";
 
