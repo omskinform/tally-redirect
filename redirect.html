@@ -9,25 +9,32 @@
 
   <script>
     const statusEl = document.getElementById("status");
-
-    // Получаем "старую" ссылку из URL, например: redirect.html?current=result-old.html
     const params = new URLSearchParams(window.location.search);
-    const current = params.get("current");
+    const currentUrl = params.get("current");
 
-    if (!current) {
-      statusEl.textContent = "Ошибка: переадресация не может быть завершена. Ожидайте письмо со ссылкой на анкету по электронной почте (?current=...)";
-      throw new Error("Missing ?current= параметр");
+    if (!currentUrl) {
+      statusEl.textContent = "Ошибка: не передана текущая версия ссылки (?current=...)";
+    } else {
+      checkLoop();
     }
 
     async function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    function extractEntryValue(url) {
+      try {
+        const parsed = new URL(url);
+        return parsed.searchParams.get("entry.1562754423");
+      } catch (e) {
+        return null;
+      }
+    }
+
     async function getLatestHref() {
       try {
         const response = await fetch("latest.json", { cache: "no-store" });
         if (!response.ok) return null;
-
         const data = await response.json();
         return data?.href || null;
       } catch (e) {
@@ -36,40 +43,46 @@
     }
 
     async function checkLoop() {
-      // 🔹 Первая проверка
+      const currentValue = extractEntryValue(currentUrl);
+      if (!currentValue) {
+        statusEl.textContent = "Ошибка: не удалось извлечь значение entry.1562754423 из текущей ссылки.";
+        return;
+      }
+
+      // 1. Первая проверка
       let latest = await getLatestHref();
-      if (latest && latest !== current) {
+      let latestValue = extractEntryValue(latest);
+
+      if (latestValue && latestValue !== currentValue) {
         location.href = latest;
         return;
       }
 
-      // 🔹 Обратный отсчёт 10 сек
+      // 2. Обратный отсчет
       for (let i = 10; i > 0; i--) {
-        statusEl.textContent = `Загрузка данных... Переадресация через ${i} сек.`;
+        statusEl.textContent = `Ожидаем обновление... Повтор через ${i} сек.`;
         await delay(1000);
       }
 
-      // 🔹 Вторая проверка
+      // 3. Вторая проверка
       latest = await getLatestHref();
-      if (latest && latest !== current) {
+      latestValue = extractEntryValue(latest);
+      if (latestValue && latestValue !== currentValue) {
         location.href = latest;
         return;
       }
 
-      // 🔹 Пауза 2 секунды
-      statusEl.textContent = "Данные не загружены. Пробуем ещё раз...";
+      // 4. Пауза 2 секунды
+      statusEl.textContent = "Файл всё ещё не обновлён. Пробуем ещё раз...";
       await delay(2000);
 
-      // 🔹 Третья проверка
+      // 5. Третья проверка
       latest = await getLatestHref();
-      if (latest && latest !== current) {
+      latestValue = extractEntryValue(latest);
+      if (latestValue && latestValue !== currentValue) {
         location.href = latest;
       } else {
-        statusEl.textContent = "Не удалось загрузить данные. Ожидайте ссылку на анкету по электронной почте.";
+        statusEl.textContent = "Файл не обновился. Попробуйте позже.";
       }
     }
-
-    checkLoop();
-  </script>
-</body>
-</html>
+  <
