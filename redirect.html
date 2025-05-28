@@ -69,7 +69,7 @@
 
       try {
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 3000)); // первая задержка без отсчета
+        await new Promise(r => setTimeout(r, 5000)); // первая задержка без отсчета
 
         const href2 = await fetchLink();
         if (href2 !== href1) {
@@ -86,7 +86,7 @@
         }
 
         status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, 5000));
 
         const href4 = await fetchLink();
         if (href4 !== href1) {
