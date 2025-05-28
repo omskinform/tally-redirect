@@ -76,7 +76,7 @@
         }
 
         status.textContent = "⏳ Переадресация сработает через ...";
-        await startCountdown(15);
+        await startCountdown(20);
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -93,7 +93,7 @@
           return;
         }
 
-        status.textContent = "❌ Ссылка не обновилась. Попробуйте позже.";
+        status.textContent = "❌ Анкета не загружена. Попробуйте еще раз.";
         retry.style.display = "inline-block";
 
       } catch (err) {
