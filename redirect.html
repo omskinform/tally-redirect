@@ -80,7 +80,7 @@
 
         // Третья проверка после обратного отсчета
         status.textContent = "⏳ Переадресация начнётся через...";
-        await startCountdown(10);
+        await startCountdown(20);
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
