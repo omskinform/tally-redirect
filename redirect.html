@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+      <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -40,13 +40,16 @@
       if (!response.ok) throw new Error("Не удалось загрузить JSON");
       const json = await response.json();
       if (!json.href) throw new Error("Ссылка не найдена в JSON");
+      console.log("Загруженная ссылка:", json.href);
       return json.href;
     }
 
-    function startCountdown(seconds, label = "⏳ Переадресация начнётся через") {
+    function startCountdown(seconds) {
       return new Promise(resolve => {
         const countdown = document.getElementById("countdown");
-        countdown.textContent = `${label}: ${seconds}`;
+        const status = document.getElementById("status");
+        status.textContent = "⏳ Переадресация начнётся через...";
+        countdown.textContent = seconds;
         const interval = setInterval(() => {
           seconds--;
           if (seconds <= 0) {
@@ -54,7 +57,7 @@
             countdown.textContent = "";
             resolve();
           } else {
-            countdown.textContent = `${label}: ${seconds}`;
+            countdown.textContent = seconds;
           }
         }, 1000);
       });
@@ -65,27 +68,17 @@
       const retry = document.getElementById("retry");
 
       try {
-        // 1-я попытка (двойная загрузка с паузой)
-        status.textContent = "⏳ Загружаем данные";
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 500));
-        const href1b = await fetchLink();
 
-        if (href1b !== href1) {
-          location.href = href1b;
-          return;
-        }
+        await new Promise(r => setTimeout(r, 5000)); // первая задержка без отсчёта
 
-        // 2-я попытка
-        await new Promise(r => setTimeout(r, 5000));
         const href2 = await fetchLink();
         if (href2 !== href1) {
           location.href = href2;
           return;
         }
 
-        // Обратный отсчёт перед 3-й попыткой
-        await startCountdown(25);
+        await startCountdown(25); // только один обратный отсчет
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -93,7 +86,15 @@
           return;
         }
 
-        // Финал — не удалось
+        status.textContent = "⏳ Открываем анкету...";
+        await new Promise(r => setTimeout(r, 7000)); // финальная пауза
+
+        const href4 = await fetchLink();
+        if (href4 !== href1) {
+          location.href = href4;
+          return;
+        }
+
         status.textContent = "❌ Анкета не загружена. Попробуйте ещё раз.";
         retry.style.display = "inline-block";
 
@@ -103,7 +104,7 @@
       }
     }
 
-    // Даём странице прогрузиться и CDN — обновиться
+    // Старт через 2 секунды после загрузки страницы
     setTimeout(() => {
       attemptRedirect();
     }, 2000);
