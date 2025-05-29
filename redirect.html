@@ -1,4 +1,4 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -36,7 +36,7 @@
 
     async function fetchLink() {
       const timestamp = Date.now();
-      const response = await fetch(`${JSON_URL}?t=${timestamp}`, { cache: "no-store" });
+      const response = await fetch(`${JSON_URL}?t=${timestamp}`, { cache: "reload" });
       if (!response.ok) throw new Error("Не удалось загрузить JSON");
       const json = await response.json();
       if (!json.href) throw new Error("Ссылка не найдена в JSON");
@@ -65,12 +65,10 @@
 
     async function attemptRedirect() {
       const status = document.getElementById("status");
-      const retry = document.getElementById("retry");
 
       try {
         const href1 = await fetchLink();
-
-        await new Promise(r => setTimeout(r, 5000)); // первая задержка без отсчёта
+        await new Promise(r => setTimeout(r, 5000)); // 5 сек ожидание
 
         const href2 = await fetchLink();
         if (href2 !== href1) {
@@ -78,7 +76,7 @@
           return;
         }
 
-        await startCountdown(25); // только один обратный отсчет
+        await startCountdown(25); // обратный отсчёт
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -95,19 +93,18 @@
           return;
         }
 
-        status.textContent = "❌ Анкета не загружена. Попробуйте ещё раз.";
-        retry.style.display = "inline-block";
+        // 🔄 Принудительно перезагружаем, как если бы пользователь нажал на кнопку
+        console.warn("Ссылка не изменилась, перезагружаем страницу для повторной попытки");
+        location.reload();
 
       } catch (err) {
-        status.textContent = "❌ Ошибка загрузки ссылки: " + err.message;
-        retry.style.display = "inline-block";
+        document.getElementById("status").textContent = "❌ Ошибка загрузки ссылки: " + err.message;
+        document.getElementById("retry").style.display = "inline-block";
       }
     }
 
-    // Старт через 2 секунды после загрузки страницы
-    setTimeout(() => {
-      attemptRedirect();
-    }, 2000);
+    // Стартуем через 2 секунды после загрузки
+    setTimeout(attemptRedirect, 2000);
   </script>
 </body>
 </html>
