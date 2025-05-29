@@ -26,13 +26,14 @@
 </head>
 <body>
   <div>
-    <div id="status">⏳ Загружаем данные</div>
+    <div id="status">⏳ Загружаем данные...</div>
     <div id="countdown"></div>
     <button id="retry" style="display:none;" onclick="location.reload()">🔁 Попробовать ещё раз</button>
   </div>
 
   <script>
     const JSON_URL = "https://omskinform.github.io/tally-redirect/latest.json";
+    let attempts = 0;
 
     async function fetchLink() {
       const timestamp = Date.now();
@@ -48,7 +49,7 @@
       return new Promise(resolve => {
         const countdown = document.getElementById("countdown");
         const status = document.getElementById("status");
-        status.textContent = "⏳ Переадресация начнётся через...";
+        status.textContent = "⏳ Переадресация через...";
         countdown.textContent = seconds;
         const interval = setInterval(() => {
           seconds--;
@@ -63,48 +64,60 @@
       });
     }
 
-    async function attemptRedirect() {
+    async function attemptCycle() {
       const status = document.getElementById("status");
 
       try {
+        // Шаг 1: Первая проверка
+        status.textContent = "⏳ Загружаем данные...";
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 3000)); // 3 сек ожидание
 
+        // Шаг 2: Обратный отсчет 20 секунд
+        await startCountdown(20);
+
+        // Шаг 3: Вторая проверка
         const href2 = await fetchLink();
         if (href2 !== href1) {
           location.href = href2;
           return;
         }
 
-        await startCountdown(20); // обратный отсчёт
-
+        // Шаг 4: reload #1 после 5 секунд, статус "Открываем анкету..."
+        status.textContent = "⏳ Открываем анкету...";
+        await new Promise(r => setTimeout(r, 5000));
         const href3 = await fetchLink();
         if (href3 !== href1) {
           location.href = href3;
           return;
         }
 
-        status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 5000)); // финальная пауза
-
+        // Шаг 5: reload #2 после 5 секунд, статус "⏳ Почти готово..."
+        status.textContent = "⏳ Почти готово...";
+        await new Promise(r => setTimeout(r, 5000));
         const href4 = await fetchLink();
         if (href4 !== href1) {
           location.href = href4;
           return;
         }
 
-        // 🔄 Принудительно перезагружаем, как если бы пользователь нажал на кнопку
-        console.warn("Ссылка не изменилась, перезагружаем страницу для повторной попытки");
-        location.reload();
+        // Шаг 6: Повтор цикла (разрешён только один раз)
+        attempts++;
+        if (attempts < 2) {
+          console.warn("Цикл не дал результата, повторяем попытку...");
+          await attemptCycle(); // повтор цикла
+        } else {
+          status.textContent = "❌ Не удалось получить новую ссылку. Попробуйте позже.";
+          document.getElementById("retry").style.display = "inline-block";
+        }
 
       } catch (err) {
-        document.getElementById("status").textContent = "❌ Ошибка загрузки ссылки: " + err.message;
+        status.textContent = "❌ Ошибка загрузки ссылки: " + err.message;
         document.getElementById("retry").style.display = "inline-block";
       }
     }
 
-    // Стартуем через 2 секунды после загрузки
-    setTimeout(attemptRedirect, 2000);
+    // Запуск сценария через 1 секунду
+    setTimeout(attemptCycle, 1000);
   </script>
 </body>
 </html>
