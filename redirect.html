@@ -68,7 +68,7 @@
 
       try {
         const href1 = await fetchLink();
-        await new Promise(r => setTimeout(r, 5000)); // 5 сек ожидание
+        await new Promise(r => setTimeout(r, 3000)); // 3 сек ожидание
 
         const href2 = await fetchLink();
         if (href2 !== href1) {
@@ -76,7 +76,7 @@
           return;
         }
 
-        await startCountdown(25); // обратный отсчёт
+        await startCountdown(15); // обратный отсчёт
 
         const href3 = await fetchLink();
         if (href3 !== href1) {
@@ -85,7 +85,7 @@
         }
 
         status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 7000)); // финальная пауза
+        await new Promise(r => setTimeout(r, 5000)); // финальная пауза
 
         const href4 = await fetchLink();
         if (href4 !== href1) {
