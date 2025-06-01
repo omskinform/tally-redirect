@@ -72,8 +72,8 @@
         status.textContent = "⏳ Загружаем данные...";
         const href1 = await fetchLink();
 
-        // Шаг 2: Обратный отсчет 20 секунд
-        await startCountdown(20);
+        // Шаг 2: Обратный отсчет 25 секунд
+        await startCountdown(25);
 
         // Шаг 3: Вторая проверка
         const href2 = await fetchLink();
@@ -82,9 +82,9 @@
           return;
         }
 
-        // Шаг 4: reload #1 после 7 секунд, статус "Открываем анкету..."
+        // Шаг 4: reload #1 после 5 секунд, статус "Открываем анкету..."
         status.textContent = "⏳ Открываем анкету...";
-        await new Promise(r => setTimeout(r, 7000));
+        await new Promise(r => setTimeout(r, 5000));
         const href3 = await fetchLink();
         if (href3 !== href1) {
           location.href = href3;
