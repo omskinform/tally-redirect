@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>amoCRM OAuth Callback</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body style="font-family:sans-serif;text-align:center;padding:2em;">
+  <h1>amoCRM OAuth Callback</h1>
+  <p>Если ты видишь этот экран — значит, amoCRM вернул code.</p>
+  <p><strong>Код:</strong> <span id="oauth-code">…загрузка…</span></p>
+  <script>
+    // Извлекаем параметр code и показываем его
+    const code = new URLSearchParams(window.location.search).get('code');
+    document.getElementById('oauth-code').textContent = code || 'не найден';
+  </script>
+</body>
+</html>
